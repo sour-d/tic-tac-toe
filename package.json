@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "router": "github:sour-d/JS-router",
+    "server": "github:sour-d/js-server"
+  }
+}
