@@ -1,19 +1,26 @@
 const { server } = require('server');
-const { Router } = require('router');
+const { initiateRouter } = require('./routes.js');
 
-// const {
-//   fileHandler
-// } = require('./handlers/fileHandlers.js');
+const logRequestDetails = (req) => {
+  console.log(`[${req.method}] ==> ${req.url.pathname}`);
+};
 
-const fileNotFound = (req, res) => {
-  res.statusCode = 404;
-  res.end('file not found');
-}
+const getHostName = (req) => 'http://' + req.headers.host;
 
-const onReq = (req, res) => {
-  // const handlers = [fileHandler];
-  const router = new Router(fileNotFound);
-  router.handle(req, res);
-}
+const parseBody = (data, req) => {
+  req.body = new URLSearchParams(data);
+};
 
-server(onReq);
+const processRequest = (req, res) => {
+  req.url = new URL(req.url, getHostName(req));
+  let data = '';
+  req.setEncoding('utf8');
+  req.on('data', (chunk) => data += chunk);
+  req.on('close', () => {
+    parseBody(data, req);
+    logRequestDetails(req);
+    initiateRouter(req, res);
+  });
+};
+
+server(processRequest);
