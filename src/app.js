@@ -1,4 +1,6 @@
 const { server } = require('server');
+const { injectCookies } = require('./injecetCookies.js');
+const { injecetHeaders } = require('./injectHeaders.js');
 const { initiateRouter } = require('./routes.js');
 
 const logRequestDetails = (req) => {
@@ -11,6 +13,8 @@ const parseBody = (data, req) => {
   req.body = new URLSearchParams(data);
 };
 
+const sessions = [];
+
 const processRequest = (req, res) => {
   req.url = new URL(req.url, getHostName(req));
   let data = '';
@@ -18,6 +22,8 @@ const processRequest = (req, res) => {
   req.on('data', (chunk) => data += chunk);
   req.on('close', () => {
     parseBody(data, req);
+    injecetHeaders(req, res);
+    injectCookies(req, res);
     logRequestDetails(req);
     initiateRouter(req, res);
   });
