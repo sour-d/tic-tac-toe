@@ -1,6 +1,8 @@
-const registrationHandler = (req, res) => {
+const registrationHandler = (req, res, session) => {
   const name = req.body.get('name');
-  res.setHeader('set-cookie', 'name=' + name + '; Max-age=60');
+  const sessionId = session.create({ name });
+
+  res.setHeader('set-cookie', 'sessionId=' + sessionId + '; Max-age=60');
   const responseBody = { registered: true };
   res.end(JSON.stringify(responseBody));
 };
