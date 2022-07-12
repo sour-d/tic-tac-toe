@@ -1,9 +1,3 @@
-const fs = require('fs');
-
-const getBody = () => {
-  return fs.readFileSync('./src/handlers/output.txt');
-};
-
 const parseBodyAsLines = (body, lineSeparator) => {
   const crlf = new Buffer.from(lineSeparator);
   const lines = [];
@@ -26,16 +20,13 @@ const separateFields = (lines, boundary) => {
       start = i + 1;
     }
   }
-
   return fields;
 }
 
 const separateHeaderAndValue = (field) => {
-  const separator = '';
-  const buf = new Buffer.from(separator);
-  const separatorPos = field.indexOf(buf);
-  const header = field.slice(0, separatorPos - 1);
-  const value = field.slice(separatorPos);
+  const separatorPos = field[1].length === 0 ? 1 : 2;
+  const header = field.slice(0, separatorPos);
+  const value = field.slice(separatorPos + 1);
   return { header, value };
 }
 
@@ -52,11 +43,11 @@ const parseBodyHeader = (rawHeader) => {
 const parseMultiPartBody = (body, boundary) => {
   const boundaryBuff = new Buffer.from(boundary);
 
-  const bodyLines = parseBodyAsLines(body, '\r\n');
+  const bodyLines = parseBodyAsLines(body, '\r\n', boundaryBuff);
   const fields = separateFields(bodyLines, boundaryBuff);
 
-  return fields.map(field => {
-    const { header, value } = separateHeaderAndValue(field);
+  return fields.map((field, i) => {
+    const { header, value } = separateHeaderAndValue(field, i);
     const parsedHeader = parseBodyHeader(header.join(';'));
     return { header: parsedHeader, value };
   });
@@ -73,11 +64,34 @@ const getBoundary = (contentType) => {
   return value;
 };
 
+class Body {
+  #body;
+  constructor(body) {
+    this.#body = body;
+  }
+
+  #findField(fieldName) {
+    return this.#body.find(field => field.header.name === fieldName)
+  }
+
+  get(fieldName) {
+    return this.#findField(fieldName)?.value;
+  }
+  getHeader(fieldName) {
+    return this.#findField(fieldName)?.header;
+  }
+}
+
+const wrapBody = (body) => {
+  const wrappedBody = new Body(body);
+  return wrappedBody;
+}
+
 const parseBody = (data, req) => {
   if (isMultipartBody(req.headers)) {
     const boundary = getBoundary(req.headers['content-type']);
-    req.body = parseMultiPartBody(data[0], boundary);
-    console.log(req.body);
+    const parsedData = parseMultiPartBody(data, boundary);
+    req.body = wrapBody(parsedData);
     return;
   }
   req.body = new URLSearchParams(data);

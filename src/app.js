@@ -15,11 +15,12 @@ const sessions = new Sessions();
 const processRequest = (req, res) => {
   req.url = new URL(req.url, getHostName(req));
   let data = [];
-  req.on('data', (chunk) => {
-    data.push(chunk)
-  });
+  req.on('data', (chunk) => data.push(chunk));
   req.on('end', () => {
-    parseBody(data, req);
+    if (data.length) {
+      const body = Buffer.concat(data);
+      parseBody(body, req);
+    }
     injectCookies(req, res);
     injectSession(req, res, sessions);
     logRequestDetails(req);
