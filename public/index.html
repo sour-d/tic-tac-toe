@@ -3,20 +3,38 @@
 <head>
   <title>Tic Tac Toe</title>
   <script src="/index.js"></script>
+  <style>
+    form>div {
+      margin: 20px 0px;
+    }
+  </style>
 </head>
 
 <body>
   <header>
     <h1>Register</h1>
+    <script>
+      const submitFile = () => {
+        form = document.getElementsByClassName('form')[0];
+        const formdata = new FormData(form);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/upload');
+        xhr.send(formdata);
+      }
+    </script>
   </header>
   <main>
     <section>
-      <form>
+      <form enctype="multipart/form-data" method="post" action="/upload">
         <div>
           <label for="name">Name : </label>
           <input type="text" name="name" id="name">
         </div>
-        <input type="button" value="submit" onclick="onSubmitForm()">
+        <div>
+          <label for="file">File : </label>
+          <input type="file" name="file" id="file">
+        </div>
+        <input type="submit" value="submit">
       </form>
     </section>
   </main>

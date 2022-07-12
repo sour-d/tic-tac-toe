@@ -1,4 +1,5 @@
 const { server } = require('server');
+const { parseBody } = require('./handlers/parser.js');
 const { injectCookies } = require('./injecetCookies.js');
 const { initiateRouter } = require('./routes.js');
 const { Sessions, injectSession } = require('./session.js');
@@ -9,18 +10,15 @@ const logRequestDetails = (req) => {
 
 const getHostName = (req) => 'http://' + req.headers.host;
 
-const parseBody = (data, req) => {
-  req.body = new URLSearchParams(data);
-};
-
 const sessions = new Sessions();
 
 const processRequest = (req, res) => {
   req.url = new URL(req.url, getHostName(req));
-  let data = '';
-  req.setEncoding('utf8');
-  req.on('data', (chunk) => data += chunk);
-  req.on('close', () => {
+  let data = [];
+  req.on('data', (chunk) => {
+    data.push(chunk)
+  });
+  req.on('end', () => {
     parseBody(data, req);
     injectCookies(req, res);
     injectSession(req, res, sessions);

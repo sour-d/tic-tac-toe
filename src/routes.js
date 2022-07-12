@@ -1,7 +1,7 @@
 const { Router } = require('router');
 const { createFileHandler } = require('./handlers/fileHandlers.js');
 const { fileNotFound } = require("./handlers/notFoundHandler");
-const { registrationHandler } = require('./handlers/registrationHandler.js');
+const { fileUploadHandler } = require('./handlers/fileUploadHandler.js');
 
 const initiateRouter = (req, res, sessions) => {
   const fileHandler = createFileHandler('./public');
@@ -12,7 +12,7 @@ const initiateRouter = (req, res, sessions) => {
     fileHandler(req, res);
   });
 
-  router.POST('/register', registrationHandler);
+  router.POST('/upload', fileUploadHandler);
 
   router.handle(req, res, sessions);
 };

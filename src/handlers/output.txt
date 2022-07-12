@@ -1,0 +1,10 @@
+------WebKitFormBoundary6wScOYAPBSoaBHiX
+Content-Disposition: form-data; name="name"
+
+sdfds
+------WebKitFormBoundary6wScOYAPBSoaBHiX
+Content-Disposition: form-data; name="file"; filename="hello.txt"
+Content-Type: text/plain
+
+hello world
+------WebKitFormBoundary6wScOYAPBSoaBHiX--

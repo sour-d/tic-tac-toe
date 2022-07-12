@@ -6,6 +6,8 @@ const onSubmitForm = () => {
   const xhr = new XMLHttpRequest();
   xhr.open('POST', '/register');
   xhr.send(body);
+  file = formData.get('file');
+  console.log(formData.get('file'));
   xhr.onload = () => registrationResponseHandler(xhr.response);
 };
 
